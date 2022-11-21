@@ -15,7 +15,7 @@ resource "aws_s3_bucket" "glue" {
 resource "aws_glue_job" "test_py_job" {
    name = "test_py_job"
    max_capacity = 0.0625
-   max_retries = 2
+   #max_retries = 2
    role_arn = "arn:aws:iam::751271771288:role/terraform_glue_role"
 
    command {
