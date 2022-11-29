@@ -2,6 +2,20 @@
     region = "us-east-1"
  }
 
+resource "aws_s3_bucket" "glue" {
+   bucket = "avi.ravipati.gluescripts"
+}
+
+resource "aws_cloudwatch_log_group" "output" {
+  name = "/aws-glue/python-jobs/output"
+  retention_in_days = 7
+}
+resource "aws_cloudwatch_log_group" "error" {
+  name = "/aws-glue/python-jobs/error"
+  retention_in_days = 7
+}
+
+
 resource "aws_iam_role" "terraform_glue_role" {
   name = "terraform_glue_role"
 
@@ -22,6 +36,9 @@ resource "aws_iam_role" "terraform_glue_role" {
 
 }
 
+
+
+
 resource "aws_iam_role_policy" "terraform_glue_role_policy" {
   name = "terraform_glue_role_policy"
   role = aws_iam_role.terraform_glue_role.id
@@ -32,20 +49,45 @@ resource "aws_iam_role_policy" "terraform_glue_role_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = [
-          "S3:*",
-          "CloudWatch:*"
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
+            Effect: "Allow",
+            Action: [
+                "logs:DeleteDataProtectionPolicy",
+                "logs:DeleteSubscriptionFilter",
+                "logs:DeleteLogStream",
+                "logs:CreateExportTask",
+                "logs:CreateLogStream",
+                "logs:DeleteMetricFilter",
+                "S3:*",
+                "logs:CancelExportTask",
+                "logs:DeleteRetentionPolicy",
+                "logs:DeleteLogDelivery",
+                "logs:AssociateKmsKey",
+                "logs:PutDestination",
+                "logs:DisassociateKmsKey",
+                "logs:PutDataProtectionPolicy",
+                "logs:DeleteLogGroup",
+                "logs:PutDestinationPolicy",
+                "logs:DeleteQueryDefinition",
+                "logs:PutQueryDefinition",
+                "logs:DeleteDestination",
+                "logs:PutLogEvents",
+                "logs:CreateLogGroup",
+                "logs:Link",
+                "logs:PutMetricFilter",
+                "logs:CreateLogDelivery",
+                "logs:UpdateLogDelivery",
+                "logs:PutSubscriptionFilter",
+                "logs:PutRetentionPolicy"
+            ],
+            "Resource": [
+               "*"
+            ]
+      }
     ]
   })
+
 }
 
-resource "aws_s3_bucket" "glue" {
-   bucket = "avi.ravipati.gluescripts"
-}
 
 resource "aws_glue_job" "test_py_job" {
    name = "test_py_job"
@@ -57,4 +99,10 @@ resource "aws_glue_job" "test_py_job" {
      script_location = "S3://${aws_s3_bucket.glue.bucket}/hello_world.py"
      python_version = 3
    }
+   default_arguments = {
+    # ... potentially other arguments ...
+    "--enable-continuous-cloudwatch-log" = "true"
+    "--enable-continuous-log-filter"     = "true"
+    "--enable-metrics"                   = ""
+  }
 }
