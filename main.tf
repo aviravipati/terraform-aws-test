@@ -2,11 +2,6 @@
     region = "us-east-1"
  }
 
-resource "aws_cloudwatch_log_group" "Glue_logs" {
-   name = "Glue_logs"
-   retention_in_days = 3
-}
-
 resource "aws_iam_role" "terraform_glue_role" {
   name = "terraform_glue_role"
 
@@ -39,6 +34,7 @@ resource "aws_iam_role_policy" "terraform_glue_role_policy" {
       {
         Action = [
           "S3:*",
+          "CloudWatch:*"
         ]
         Effect   = "Allow"
         Resource = "*"
